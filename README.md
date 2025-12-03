@@ -174,7 +174,7 @@ Edit `tools/web_search/parallel_web_systems/deploy_findall.sql`:
 ```sql
 CREATE SECRET findall_api_key TYPE = GENERIC_STRING SECRET_STRING = 'your-api-key';
 ```
-
+Get API key: https://platform.parallel.ai/
 ### Google Workspace
 
 Google Workspace requires OAuth 2.0 authentication. This is a one-time setup.
