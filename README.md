@@ -156,13 +156,57 @@ CREATE SECRET findall_api_key TYPE = GENERIC_STRING SECRET_STRING = 'your-api-ke
 
 ### Google Workspace
 
-Requires OAuth flow:
+Google Workspace requires OAuth 2.0 authentication. This is a one-time setup.
 
-1. Create OAuth app in [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-2. Enable: Google Docs API, Google Sheets API, Google Drive API
-3. Run: `python tools/gsuite/get_oauth_url.py`
-4. Complete browser auth flow
-5. Run: `python tools/gsuite/create_oauth_secret.py`
+**Step 1: Create Google Cloud Project**
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (or select existing)
+3. Go to **APIs & Services** → **Library**
+4. Enable these APIs:
+   - Google Docs API
+   - Google Sheets API
+   - Google Drive API
+
+**Step 2: Create OAuth Credentials**
+1. Go to **APIs & Services** → **Credentials**
+2. Click **Create Credentials** → **OAuth client ID**
+3. If prompted, configure the OAuth consent screen:
+   - User Type: **External** (or Internal for Workspace orgs)
+   - App name: `Snowflake GTM Agent`
+   - Add your email as test user
+4. For OAuth client ID:
+   - Application type: **Web application**
+   - Name: `Snowflake GTM Agent`
+   - Authorized redirect URIs: `https://developers.google.com/oauthplayground`
+5. Copy the **Client ID** and **Client Secret**
+
+**Step 3: Add Credentials to .env**
+```
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
+```
+
+**Step 4: Get Refresh Token via OAuth Playground**
+1. Run: `python tools/gsuite/get_oauth_url.py` (shows detailed instructions)
+2. Go to [OAuth Playground](https://developers.google.com/oauthplayground/)
+3. Click gear icon (⚙️) → Check **"Use your own OAuth credentials"**
+4. Enter your Client ID and Client Secret
+5. In Step 1, enter these scopes (one per line):
+   ```
+   https://www.googleapis.com/auth/documents
+   https://www.googleapis.com/auth/spreadsheets
+   https://www.googleapis.com/auth/drive
+   ```
+6. Click **Authorize APIs** → Sign in → Grant permissions
+7. Click **Exchange authorization code for tokens**
+8. Copy the `refresh_token` from the response
+
+**Step 5: Create Snowflake Secret**
+```bash
+python tools/gsuite/create_oauth_secret.py <your-refresh-token>
+```
+
+This creates the secret in Snowflake that the Google Workspace UDFs use.
 
 ## Adding New Integrations
 
