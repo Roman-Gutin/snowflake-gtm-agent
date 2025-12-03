@@ -26,7 +26,22 @@ snow sql -f deployment/snowflake_setup.sql
 
 Creates: `AGENTS_DEMO` database, `AGENTS_DEMO_WH` warehouse, roles.
 
-### Step 2: Deploy Integrations
+### Step 2: Create Personal Access Token (PAT)
+
+The agent builder uses Snowflake's REST API, which requires a PAT for authentication.
+
+1. In Snowsight, go to your username (bottom left) → **My Profile**
+2. Scroll to **Programmatic Access Tokens** → **Create Token**
+3. Name: `gtm_agent_token`
+4. Role: `AGENTS_SERVICE_ROLE`
+5. Expiry: 90 days (or your preference)
+6. Copy the token and add to `.env`:
+   ```
+   SNOWFLAKE_ACCOUNT=your-account-identifier
+   SNOWFLAKE_PAT=your-token-here
+   ```
+
+### Step 3: Deploy Integrations
 
 **Salesforce:**
 ```bash
@@ -46,13 +61,19 @@ python tools/gsuite/get_oauth_url.py          # Get auth URL
 python tools/gsuite/create_oauth_secret.py    # Create Snowflake secret
 ```
 
-### Step 3: Create Agent
+### Step 4: Create Agent
 
 ```bash
 python agent/build_agent.py gtm_engineer --delete
 ```
 
-### Step 4: Use It
+This script:
+- Loads tool specs from `agent/tool_specs/`
+- Loads config from `agent/configs/gtm_engineer.py`
+- Creates the agent via Snowflake REST API
+- `--delete` removes existing agent first (use when updating)
+
+### Step 5: Use It
 
 1. Go to [Snowsight](https://app.snowflake.com/)
 2. Navigate to **AI & ML** → **Cortex** → **Agents**
