@@ -1,0 +1,10 @@
+connections:
+  default:
+    account: your-account
+    user: your-user
+    password: your-password
+    role: your-role
+    warehouse: your-warehouse
+    database: your-database
+    schema: salesforce_tools
+
